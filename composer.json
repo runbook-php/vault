@@ -1,0 +1,21 @@
+{
+    "name": "wsw/runbook-vault",
+    "description": "Vault Runbook",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Ronaldo Matos Rodrigues",
+            "email": "ronaldo@whera.com.br"
+        }
+    ],
+    "require": {
+        "league/flysystem": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wsw\\Runbook\\Vault\\": "src/"
+        }
+    }
+}
