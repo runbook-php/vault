@@ -2,6 +2,9 @@
 
 namespace Wsw\Runbook\Vault;
 
+use Wsw\Runbook\Contract\Vault\EncryptionContract;
+use Wsw\Runbook\Contract\Vault\DataEncryptedContract;
+
 class AES256CBCEncryption implements EncryptionContract
 {
     public const IV_BYTES = 16;
@@ -14,7 +17,7 @@ class AES256CBCEncryption implements EncryptionContract
         $this->key = $key;
     }
 
-    public function encrypt(string $plaintext): DataEncrypted
+    public function encrypt(string $plaintext): DataEncryptedContract
     {
         $this->validateKey();
         $iv = random_bytes(static::IV_BYTES);
@@ -22,7 +25,7 @@ class AES256CBCEncryption implements EncryptionContract
         return new DataEncrypted(base64_encode($iv), base64_encode($ciphertext));
     }
 
-    public function decrypt(DataEncrypted $dataEncrypted)
+    public function decrypt(DataEncryptedContract $dataEncrypted)
     {
         $this->validateKey();
         $iv = base64_decode($dataEncrypted->getIv());

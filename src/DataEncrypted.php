@@ -2,7 +2,9 @@
 
 namespace Wsw\Runbook\Vault;
 
-final class DataEncrypted
+use Wsw\Runbook\Contract\Vault\DataEncryptedContract;
+
+final class DataEncrypted implements DataEncryptedContract
 {
     private $iv;
     private $ciphertext;

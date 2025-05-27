@@ -3,6 +3,7 @@
 namespace Wsw\Runbook\Vault;
 
 use League\Flysystem\FilesystemOperator;
+use Wsw\Runbook\Contract\Vault\EncryptionContract;
 
 class Vault
 {
