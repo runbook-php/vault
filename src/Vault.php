@@ -3,6 +3,8 @@
 namespace Wsw\Runbook\Vault;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\StorageAttributes;
+use League\Flysystem\FileAttributes;
 use Wsw\Runbook\Contract\Vault\EncryptionContract;
 
 class Vault
@@ -82,6 +84,29 @@ class Vault
 
         $this->fileSystemSecret->delete($secretFileName);
         return;
+    }
+
+    public function all(): array
+    {
+        $listArray = [];
+
+        $list = $this->fileSystemSecret->listContents('/')->filter(function (StorageAttributes $attributes){
+            return  $attributes->isFile() === true && pathinfo($attributes->path(), PATHINFO_EXTENSION) === 'json';
+        });
+
+        /**
+         * @var FileAttributes $item
+         */
+        foreach ($list->toArray() as $item) {
+            $json = $this->fileSystemSecret->read($item->path());
+            $arr = json_decode($json, true);
+
+            if (is_array($arr) && isset($arr['path']) && !empty($arr['path'])) {
+                $listArray[] = $arr['path'];
+            }
+        }
+
+        return  $listArray;
     }
 
     public function normalizedSecretPath(string $secretPath): string
