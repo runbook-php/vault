@@ -56,7 +56,7 @@ class Vault
         $this->validateSecretPath($secretPath);
         $secretFileName = $this->getHash($secretPath) . '.json';
 
-        if ($this->fileSystemSecret->fileExists($secretFileName)) {
+        if (!$this->fileSystemSecret->fileExists($secretFileName)) {
             throw new \InvalidArgumentException("Key not found for path '{$secretPath}'. Please ensure the secret exists in the vault.");
         }
 
@@ -70,7 +70,21 @@ class Vault
         return $encryptedData;
     }
 
-    private function normalizedSecretPath(string $secretPath): string
+    public function destroy(string $secretPath): void
+    {
+        $secretPath = $this->normalizedSecretPath($secretPath);
+        $this->validateSecretPath($secretPath);
+        $secretFileName = $this->getHash($secretPath) . '.json';
+
+        if (!$this->fileSystemSecret->fileExists($secretFileName)) {
+            throw new \InvalidArgumentException("Key not found for path '{$secretPath}'. Please ensure the secret exists in the vault.");
+        }
+
+        $this->fileSystemSecret->delete($secretFileName);
+        return;
+    }
+
+    public function normalizedSecretPath(string $secretPath): string
     {
         $secretPath = mb_strtolower($secretPath);
         $secretPath = '/' . ltrim($secretPath, '/');
