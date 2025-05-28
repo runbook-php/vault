@@ -25,20 +25,25 @@ class Vault
         return hash('sha3-256', $secretPath);
     }
 
+    public function exists(string $secretPath): bool
+    {
+        $secretPath = $this->normalizedSecretPath($secretPath);
+        $this->validateSecretPath($secretPath);
+        $secretFileName = $this->getHash($secretPath) . '.json';
+        return $this->fileSystemSecret->fileExists($secretFileName);
+    }
+
     public function write(string $secretPath, string $secret)
     {
-        $secretPath = mb_strtolower($secretPath);
-        $secretPath = '/' . ltrim($secretPath, '/');
-        $secretPath = rtrim($secretPath, '/');
+        $secretPath = $this->normalizedSecretPath($secretPath);
         $this->validateSecretPath($secretPath);
-        
         $secretFileName = $this->getHash($secretPath) . '.json';
-        $encryptedData = $this->encrypt->encrypt($secret);
 
-        if ($this->fileSystemSecret->fileExists($secretFileName)) {
+        if ($this->exists($secretFileName)) {
             throw new \InvalidArgumentException("The secret path '{$secretPath}' already exists. A key with this name is already stored in the vault.");
         }
 
+        $encryptedData = $this->encrypt->encrypt($secret);
         $data = $encryptedData->toArray();
         $data['path'] = $secretPath;
 
@@ -47,13 +52,11 @@ class Vault
 
     public function read(string $secretPath)
     {
-        $secretPath = mb_strtolower($secretPath);
-        $secretPath = '/' . ltrim($secretPath, '/');
-        $secretPath = rtrim($secretPath, '/');
+        $secretPath = $this->normalizedSecretPath($secretPath);
         $this->validateSecretPath($secretPath);
         $secretFileName = $this->getHash($secretPath) . '.json';
 
-        if (!$this->fileSystemSecret->fileExists($secretFileName)) {
+        if ($this->exists($secretFileName)) {
             throw new \InvalidArgumentException("Key not found for path '{$secretPath}'. Please ensure the secret exists in the vault.");
         }
 
@@ -65,6 +68,14 @@ class Vault
 
         $encryptedData = $this->encrypt->decrypt(new DataEncrypted($data['iv'], $data['ciphertext']));
         return $encryptedData;
+    }
+
+    private function normalizedSecretPath(string $secretPath): string
+    {
+        $secretPath = mb_strtolower($secretPath);
+        $secretPath = '/' . ltrim($secretPath, '/');
+        $secretPath = rtrim($secretPath, '/');
+        return trim($secretPath);
     }
 
     private function validateSecretPath(string $path)
