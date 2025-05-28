@@ -39,7 +39,7 @@ class Vault
         $this->validateSecretPath($secretPath);
         $secretFileName = $this->getHash($secretPath) . '.json';
 
-        if ($this->exists($secretFileName)) {
+        if ($this->fileSystemSecret->fileExists($secretFileName)) {
             throw new \InvalidArgumentException("The secret path '{$secretPath}' already exists. A key with this name is already stored in the vault.");
         }
 
@@ -56,7 +56,7 @@ class Vault
         $this->validateSecretPath($secretPath);
         $secretFileName = $this->getHash($secretPath) . '.json';
 
-        if ($this->exists($secretFileName)) {
+        if ($this->fileSystemSecret->fileExists($secretFileName)) {
             throw new \InvalidArgumentException("Key not found for path '{$secretPath}'. Please ensure the secret exists in the vault.");
         }
 
